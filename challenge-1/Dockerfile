@@ -33,24 +33,25 @@ COPY src ./src
 COPY dist/index.html ./dist/index.html
 
 FROM base AS challenge
-ARG FLAG
+ARG FLAG="picoctf{default_flag}"
 
 # debug
 RUN echo $FLAG 
 RUN echo $FLAG | sed "s/.*{/picoCTF{gr3p_15_4_5up3rp0w3r_/1" >  /home/node/app/flag.txt
-RUN tar czvf /challenge/artifacts.tar.gz flag.txt && \
-    echo "{\"flag\":\"$(cat flag.txt)\"}" > /challenge/metadata.json
+
+# (dbrumley): Was putting the flag in the download intentional?
+# commented out for now. 
+#RUN tar czvf /challenge/artifacts.tar.gz flag.txt && \
+
+RUN echo "{\"flag\":\"$(cat flag.txt)\"}" > /challenge/metadata.json
 
 # USER node
 EXPOSE 8000
+# PUBLISH 8000 AS web
 
 # RUN npm run start &
 # RUN npm run start 
 
-# PUBLISH 8000 AS web
 
 # CMD ["tail", "-f", "/dev/null"]
 CMD ["npm", "run", "start"]
-
-
-
