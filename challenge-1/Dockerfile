@@ -31,6 +31,7 @@ RUN mkdir -p ./local && touch ./local/local.txt && chmod 777 ./local/local.txt
 RUN mkdir -p ./dist && chmod 777 ./dist
 COPY src ./src
 COPY dist/index.html ./dist/index.html
+COPY webpack.config.cjs ./webpack.config.cjs
 
 FROM base AS challenge
 ARG FLAG="picoctf{default_flag}"
@@ -53,5 +54,5 @@ EXPOSE 8000
 # RUN npm run start 
 
 
-# CMD ["tail", "-f", "/dev/null"]
-CMD ["npm", "run", "start"]
+CMD ["tail", "-f", "/dev/null"]
+# CMD ["npm", "run", "start:dev"]
