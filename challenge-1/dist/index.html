@@ -154,6 +154,35 @@
         <script>
             additionalInfo = {};
 
+            // function report(userDefinedUrl) {                
+            //     fetch(`/report?url=${document.location.href}`)
+            //         .then(response => response.json())
+            //         .then(data => {
+            //             console.log(data);
+            //         })
+            //         .catch(error => {
+            //             console.error('Error:', error);
+            //         });
+            // }
+
+
+            function report(userDefinedUrl) {
+                fetch('/report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url: document.location.href }) // Send URL in the request body
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+
             function combineAndMap(str, num) {
                 // Get the last character of the string
                 const char = str.charAt(str.length - 1).toLowerCase();;
