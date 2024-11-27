@@ -28,62 +28,10 @@ app.use((req, res, next) => {
 });
 const PORT = 8000;
 
-
 // Load environment variables from .env file
 dotenv.config();
 
 app.use(express.static(path.join(__dirname, '../dist')));
-
-// Catch-all to serve index.html for any other paths (for SPA support)
-app.get('/submit', (req, res) => {    
-    req.query = req.query.data;    
-    var data = JSON.parse(req.query)
-    console.log("Data received:", data);  
-    if(data['arg1'] === undefined || data['arg2'] === undefined) {
-        return res.status(400).json({ message: "No data received" });
-    }
-    var filedata = fs.readFileSync("./local/local.txt").toString();
-    if(filedata === "") {
-        filedata = { data: [] };
-    }
-    else {
-        filedata = JSON.parse(filedata);
-    }
-    filedata['data'].push(JSON.stringify(data));
-    console.log(filedata);
-    fs.writeFile("./local/local.txt", JSON.stringify(filedata), (err) => {
-        if (err) {
-            console.error("Error saving data:", err);
-            return res.status(500).json({ message: "Error saving data" });
-        }
-        console.log("Data saved successfully");
-        res.json({ message: "Data saved successfully" });
-    });
-});
-
-app.get('/getlocal', (req, res) => {
-    fs.readFile("./local/local.txt", "utf-8", (err, data) => {
-        if (err) {
-            console.error("Error reading data:", err);
-            return res.status(500).json({ message: "Error reading data" });
-        }
-        console.log("Data read successfully");
-        // parse data line by line into an array             
-        res.json({ message: "Data read successfully", data });
-    });
-});
-
-app.get('/clear', async (req, res) => {
-    // clear the local.txt file
-    fs.writeFile("./local/local.txt", "", (err) => {
-        if (err) {
-            console.error("Error clearing data:", err);
-            return res.status(500).json({ message: "Error clearing data" });
-        }
-        console.log("Data cleared successfully");
-        return res.status(200).json({ message: "Data cleared successfully" });
-    });
-});
 
 app.post('/report', async (req, res) => {
     const { url } = req.body;
@@ -130,7 +78,9 @@ app.post('/report', async (req, res) => {
 
         const cookieName = 'flag';
         // Read the flag from flag.txt
-        const cookieValue = fs.readFileSync('./flag.txt').toString();
+        let cookieValue = fs.readFileSync('./flag.txt').toString();
+        cookieValue = btoa(cookieValue); 
+        console.log('cookieVal', cookieValue); 
 
         const result = await visitSiteWithCookie(url, cookieName, cookieValue);
         res.status(200).json(result);
@@ -140,59 +90,6 @@ app.post('/report', async (req, res) => {
         res.status(500).json({ error: "An error occurred while visiting the site." });
     }
 });
-
-
-// app.get('/report', async (req, res) => {
-//     console.log("req.query: ", req.query);
-//     const { url } = req.query;
-
-//     if (!url) {
-//         return res.status(400).json({ error: "URL is required" });
-//     }
-
-//     try {
-//         const visitSiteWithCookie = async (url, cookieName, cookieValue) => {
-//             const browser = await puppeteer.launch({ 
-//                 executablePath: '/usr/bin/google-chrome',
-//                 headless: true 
-//             });
-//             const page = await browser.newPage();
-
-//             // Set a cookie before visiting the URL
-//             await page.setCookie({
-//                 name: cookieName,
-//                 value: cookieValue,
-//                 domain: new URL(url).hostname
-//             });
-
-//             // Navigate to the provided URL
-//             await page.goto(url, { waitUntil: 'networkidle2' });
-
-//             // Run JavaScript and interact with the DOM
-//             const pageTitle = await page.title();
-//             console.log("Page Title:", pageTitle);
-
-//             try {
-//                 const someText = await page.$eval('#content', el => el.innerHTML);
-//                 console.log("Content:", someText);
-
-//             } catch (error) {
-//                 console.error("Error retrieving selector:", error);
-//             }
-//             await browser.close();
-//             return { message: `Visited ${url} successfully!` };
-//         };
-//         const cookieName = 'flag';
-//         // read the flag from the flag.txt
-//         const cookieValue = fs.readFileSync("./flag.txt").toString();    
-//         visitSiteWithCookie(url, cookieName, cookieValue);    
-
-//     } catch (error) {
-//         console.error("Error visiting site:", error);
-//         res.status(500).json({ error: "An error occurred while visiting the site." });
-//     }
-
-// });
 
 
 app.get('*', (req, res) => {
