@@ -1,8 +1,5 @@
 import _ from 'lodash';
-import $ from "jquery";
-import cors from 'cors'
 _.templateSettings.sourceURL = '';
-const someUsefulLibrary = _;
 
 import enfj_pic from './mbti/ENFJ.jpg';
 import enfp_pic from './mbti/ENFP.jpg';
@@ -40,5 +37,5 @@ const mbti_pics = {
     'ISTP': istp_pic
 };
 
-window.$ = window.JQuery = $;
+window._ = _;
 window.mbti_pics = mbti_pics;

@@ -46,7 +46,7 @@ RUN echo $FLAG | sed "s/.*{/picoCTF{gr3p_15_4_5up3rp0w3r_/1" >  /home/node/app/f
 
 RUN echo "{\"flag\":\"$(cat flag.txt)\"}" > /challenge/metadata.json
 
-# USER node
+USER node
 EXPOSE 8000
 # PUBLISH 8000 AS web
 
@@ -54,5 +54,5 @@ EXPOSE 8000
 # RUN npm run start 
 
 
-CMD ["tail", "-f", "/dev/null"]
-# CMD ["npm", "run", "start:dev"]
+# CMD ["tail", "-f", "/dev/null"]
+CMD ["npm", "run", "start"]

